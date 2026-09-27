@@ -1,0 +1,26 @@
+import pandas as pd
+from io import StringIO
+
+csv_data = """patient_id,age,hba1c,microaneurysms,vessel_density,resting_hr,daily_steps
+NID-001,45,8.2,14,68,82,4200
+NID-002,32,5.9,2,88,65,11000
+NID-003,58,9.1,22,55,88,3100
+NID-004,27,5.4,0,94,62,9500
+NID-005,51,7.4,8,74,76,5800
+NID-006,64,8.9,19,61,84,2900
+NID-007,41,6.8,5,81,71,8200"""
+
+df = pd.read_csv(StringIO(csv_data))
+
+def process_batch(df):
+    results = []
+    for _, row in df.iterrows():
+        egfr, status = calculate_nidaan_kidney_risk(
+            row['age'], row['hba1c'], row['microaneurysms'], 
+            row['vessel_density'], row['resting_hr'], row['daily_steps']
+        )
+        results.append({'patient_id': row['patient_id'], 'eGFR': egfr, 'status': status})
+    return pd.DataFrame(results)
+
+summary_df = process_batch(df)
+print(summary_df.to_string(index=False))
