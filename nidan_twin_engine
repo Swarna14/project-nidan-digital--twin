@@ -1,3 +1,48 @@
---- Project Nidaan Digital Twin Simulation Engine ---
-Simulated Patient eGFR: 0.04 mL/min/1.73m² (Capped at Lower Physiological Bound: 15.00 mL/min/1.73m²)
-Twin Diagnostic State: CRITICAL: High Risk of Diabetic Nephropathy (Stage 3+ Chronic Kidney Disease)
+import numpy as np
+import pandas as pd
+
+def calculate_nidaan_kidney_risk(age, hba1c, microaneurysms, vessel_density, resting_hr, daily_steps):
+    """
+    Project Nidaan: Micro-Vascular Digital Twin Risk Engine
+    Simulates eGFR (Kidney Filtration) degradation risk based on multi-modal inputs.
+    """
+    # 1. Baseline Metabolic Score from Static EHR
+    metabolic_risk = (hba1c - 5.7) * 15 if hba1c > 5.7 else 0
+    age_factor = age * 0.2
+    
+    # 2. Micro-Vascular Score from Retinal Image Analysis
+    # Higher microaneurysm count and lower vessel density signify advanced damage
+    retinal_risk = (microaneurysms * 8) + (100 - vessel_density) * 1.5
+    
+    # 3. Dynamic Stress Score from Wearable Telemetry
+    wearable_stress = (resting_hr - 60) * 1.2 if resting_hr > 70 else 0
+    activity_penalty = (10000 - daily_steps) * 0.005 if daily_steps < 8000 else 0
+    
+    # Aggregate Digital Twin Simulation State
+    total_vascular_stress = metabolic_risk + age_factor + retinal_risk + wearable_stress + activity_penalty
+    
+    # Predict Simulated eGFR (Normal is > 90, Kidney failure is < 60)
+    predicted_egfr = 100 - (total_vascular_stress * 0.4)
+    predicted_egfr = max(15, min(120, predicted_egfr)) # Keep within physiological bounds
+    
+    # Risk Stratification Classification
+    if predicted_egfr < 60:
+        status = "CRITICAL: High Risk of Diabetic Nephropathy (Stage 3+ Chronic Kidney Disease)"
+    elif predicted_egfr < 85:
+        status = "MODERATE: Early Micro-Vascular Renal Decline Detected"
+    else:
+        status = "STABLE: Vascular Twin Metrics Within Safe Bounds"
+        
+    return round(predicted_egfr, 2), status
+
+# --- Simple Simulation Run for a Sample Patient ---
+if __name__ == "__main__":
+    print("--- Project Nidaan Digital Twin Simulation Engine ---")
+    
+    # Mock Indian Patient Profile: 45 y/o, Uncontrolled HbA1c, High Eye Damage, Sedentary Lifestyle
+    egfr_score, risk_status = calculate_nidaan_kidney_risk(
+        age=45, hba1c=8.2, microaneurysms=14, vessel_density=68, resting_hr=82, daily_steps=4200
+    )
+    
+    print(f"Simulated Patient eGFR: {egfr_score} mL/min/1.73m²")
+    print(f"Twin Diagnostic State: {risk_status}")
