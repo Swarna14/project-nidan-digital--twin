@@ -1,6 +1,6 @@
 # project-nidan-digital-twin
 Micro-Vascular Retinal Digital Twin for Diabetic Nephropathy Prediction
-# Sample implementation structure for nidaan_twin_engine.py
+# Sample implementation structure for nidan_twin_engine.py
 
 import numpy as np
 import pandas as pd
